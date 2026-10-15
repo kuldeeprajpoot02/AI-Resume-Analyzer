@@ -103,14 +103,10 @@ Add your MongoDB connection string, Google Gemini API key, authentication secret
 
 ### 5. Run the application
 
-Use the development scripts defined in each directory's `package.json` to start the backend and frontend.
+Start the backend and frontend using the development scripts defined in their respective `package.json` files.
 
-## 🔐 Security
-
-- Keep API keys and database credentials in environment variables.
-- Do not commit `.env` files.
-- Use secure authentication and cookie settings in production.
+Make sure the required environment variables are configured before starting the application.
 
 ## 👨‍💻 Author
 
-Kuldeep Rajpoot
+**Kuldeep Rajpoot**
