@@ -22,7 +22,6 @@ An AI-powered Resume Analyzer and Interview Preparation platform built using the
 ## 🛠️ Tech Stack
 
 ### Frontend
-
 - React.js
 - React Router
 - Axios
@@ -30,7 +29,6 @@ An AI-powered Resume Analyzer and Interview Preparation platform built using the
 - Vite
 
 ### Backend
-
 - Node.js
 - Express.js
 - MongoDB
@@ -42,7 +40,6 @@ An AI-powered Resume Analyzer and Interview Preparation platform built using the
 - Puppeteer
 
 ### AI
-
 - Google Gemini API
 - Structured AI responses
 - AI-generated interview preparation reports
@@ -50,8 +47,7 @@ An AI-powered Resume Analyzer and Interview Preparation platform built using the
 ## 📂 Project Structure
 
 ```text
-project11/
-│
+Mern_Project-main/
 ├── BACKEND/
 │   ├── src/
 │   │   ├── config/
@@ -63,7 +59,6 @@ project11/
 │   ├── server.js
 │   ├── package.json
 │   └── .env.example
-│
 ├── FRONTEND/
 │   ├── src/
 │   │   ├── features/
@@ -71,6 +66,51 @@ project11/
 │   │   └── main.jsx
 │   ├── package.json
 │   └── vite.config.js
-│
 ├── .gitignore
 └── README.md
+```
+
+## ⚙️ Setup and Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/kuldeeprajpoot02/AI-Resume-Analyzer.git
+cd AI-Resume-Analyzer
+```
+
+### 2. Install backend dependencies
+
+```bash
+cd BACKEND
+npm install
+```
+
+Create a `.env` file in the `BACKEND` directory and configure the required environment variables.
+
+### 3. Install frontend dependencies
+
+Open another terminal:
+
+```bash
+cd FRONTEND
+npm install
+```
+
+### 4. Configure environment variables
+
+Add your MongoDB connection string, Google Gemini API key, authentication secrets, and other required settings to the appropriate `.env` files. Never commit real credentials to GitHub.
+
+### 5. Run the application
+
+Use the development scripts defined in each directory's `package.json` to start the backend and frontend.
+
+## 🔐 Security
+
+- Keep API keys and database credentials in environment variables.
+- Do not commit `.env` files.
+- Use secure authentication and cookie settings in production.
+
+## 👨‍💻 Author
+
+Kuldeep Rajpoot
