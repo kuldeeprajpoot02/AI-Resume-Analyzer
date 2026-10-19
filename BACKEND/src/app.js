@@ -1,16 +1,29 @@
+
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const app = express();
 
+// Allowed frontend origins
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://ai-resume-analyzer-mu-sand.vercel.app"
+];
+
 // Middleware
 app.use(
     cors({
-        origin: [
-            "http://localhost:5173",
-            "http://localhost:3000"
-        ],
+        origin: function (origin, callback) {
+            // Allow requests without an Origin header
+            // (for example, server-to-server requests)
+            if (!origin || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Origin not allowed by CORS"));
+        },
         credentials: true
     })
 );
@@ -53,7 +66,9 @@ app.use((err, req, res, next) => {
 
     res.status(err.status || 500).json({
         success: false,
-        message: err.status ? err.message : "Internal server error"
+        message: err.status
+            ? err.message
+            : "Internal server error"
     });
 });
 
