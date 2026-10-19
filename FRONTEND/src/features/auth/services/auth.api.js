@@ -2,8 +2,7 @@
 import axios from "axios";
 
 const API_URL = (
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:5000"
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
 ).replace(/\/+$/, "");
 
 const authApi = axios.create({
@@ -14,39 +13,31 @@ const authApi = axios.create({
   },
 });
 
-// Register user
-export const registerUser = async (userData) => {
+export const register = async (userData) => {
   const response = await authApi.post("/register", userData);
   return response.data;
 };
 
-// Login user
-export const loginUser = async (credentials) => {
+export const login = async (credentials) => {
   const response = await authApi.post("/login", credentials);
   return response.data;
 };
 
-// Logout user
-export const logoutUser = async () => {
+export const logout = async () => {
   const response = await authApi.get("/logout");
   return response.data;
 };
 
-// Get logged-in user
 export const getMe = async () => {
   const response = await authApi.get("/get-me");
   return response.data;
 };
 
-// Forgot password
 export const forgotPassword = async (email) => {
-  const response = await authApi.post("/forgot-password", {
-    email,
-  });
+  const response = await authApi.post("/forgot-password", { email });
   return response.data;
 };
 
-// Reset password
 export const resetPassword = async (token, password) => {
   const response = await authApi.post(
     `/reset-password/${encodeURIComponent(token)}`,
