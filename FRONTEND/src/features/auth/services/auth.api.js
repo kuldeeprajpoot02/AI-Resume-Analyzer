@@ -1,41 +1,58 @@
+
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: (
-    import.meta.env.VITE_API_URL ||
-    "http://localhost:5000"
-  ).replace(/\/+$/, ""),
+const API_URL = (
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000"
+).replace(/\/+$/, "");
+
+const authApi = axios.create({
+  baseURL: `${API_URL}/api/auth`,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export const register = async ({ username, email, password }) => {
-  const res = await api.post("/api/auth/register", {
-    username,
-    email,
-    password,
-  });
-  return res.data;
+// Register user
+export const registerUser = async (userData) => {
+  const response = await authApi.post("/register", userData);
+  return response.data;
 };
 
-export const login = async ({ email, password }) => {
-  const res = await api.post("/api/auth/login", {
-    email,
-    password,
-  });
-  return res.data;
+// Login user
+export const loginUser = async (credentials) => {
+  const response = await authApi.post("/login", credentials);
+  return response.data;
 };
 
-export const logout = async () => {
-  const res = await api.get("/api/auth/logout");
-  return res.data;
+// Logout user
+export const logoutUser = async () => {
+  const response = await authApi.get("/logout");
+  return response.data;
 };
 
+// Get logged-in user
 export const getMe = async () => {
-  const res = await api.get("/api/auth/get-me");
-  return res.data;
+  const response = await authApi.get("/get-me");
+  return response.data;
 };
 
-export default api;
+// Forgot password
+export const forgotPassword = async (email) => {
+  const response = await authApi.post("/forgot-password", {
+    email,
+  });
+  return response.data;
+};
+
+// Reset password
+export const resetPassword = async (token, password) => {
+  const response = await authApi.post(
+    `/reset-password/${encodeURIComponent(token)}`,
+    { password }
+  );
+  return response.data;
+};
+
+export default authApi;
