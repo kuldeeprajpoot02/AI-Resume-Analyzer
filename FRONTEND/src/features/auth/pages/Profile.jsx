@@ -16,7 +16,6 @@ const Profile = () => {
     username: "",
     email: "",
   });
-
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -27,24 +26,23 @@ const Profile = () => {
 
     const loadProfile = async () => {
       try {
+        // Correct backend endpoint: /api/auth/get-me
         const response = await axios.get(
-          `${API_URL}/api/auth/me`,
+          `${API_URL}/api/auth/get-me`,
           { withCredentials: true }
         );
 
-        const data =
-          response.data?.user ||
-          response.data?.data ||
-          response.data;
-
+        const data = response.data?.user || response.data?.data || response.data;
         const profile = data?.user || data;
 
         if (!active) return;
 
         setUser(profile);
-
         setForm({
-          username: profile?.username || "",
+          username:
+            profile?.username ||
+            profile?.name ||
+            "",
           email: profile?.email || "",
         });
       } catch (err) {
@@ -52,16 +50,15 @@ const Profile = () => {
 
         if (err.response?.status === 401) {
           navigate("/login", { replace: true });
-        } else {
-          setError(
-            err.response?.data?.message ||
-              "Unable to load your profile. Please try again."
-          );
+          return;
         }
+
+        setError(
+          err.response?.data?.message ||
+            "Unable to load your profile. Please try again."
+        );
       } finally {
-        if (active) {
-          setLoading(false);
-        }
+        if (active) setLoading(false);
       }
     };
 
@@ -73,7 +70,9 @@ const Profile = () => {
   }, [navigate]);
 
   const initials = (
-    form.username || form.email || "U"
+    form.username ||
+    form.email ||
+    "U"
   )
     .trim()
     .charAt(0)
@@ -90,7 +89,7 @@ const Profile = () => {
 
   const handleCancel = () => {
     setForm({
-      username: user?.username || "",
+      username: user?.username || user?.name || "",
       email: user?.email || "",
     });
 
@@ -102,10 +101,8 @@ const Profile = () => {
   const handleSave = (event) => {
     event.preventDefault();
     setError("");
-    setSuccess("");
-
-    setError(
-      "Profile updates are not connected yet. A backend update endpoint is required to save these changes."
+    setSuccess(
+      "Profile editing is not connected to a backend update endpoint yet. Your changes have not been saved."
     );
   };
 
@@ -137,9 +134,7 @@ const Profile = () => {
             <p className="profile-eyebrow">
               ACCOUNT SETTINGS
             </p>
-
             <h1>My Profile</h1>
-
             <p className="profile-subtitle">
               Manage your account information in one place.
             </p>
@@ -188,7 +183,6 @@ const Profile = () => {
             <div className="profile-fields">
               <label className="profile-field">
                 <span>Full Name</span>
-
                 <input
                   type="text"
                   name="username"
@@ -202,7 +196,6 @@ const Profile = () => {
 
               <label className="profile-field">
                 <span>Email Address</span>
-
                 <input
                   type="email"
                   name="email"
@@ -237,16 +230,13 @@ const Profile = () => {
         </section>
 
         <section className="profile-card profile-security">
-          <div className="profile-security-icon">
-            ✓
-          </div>
+          <div className="profile-security-icon">✓</div>
 
           <div>
             <h2>Account Security</h2>
-
             <p>
-              Keep your login credentials private.
-              Use password recovery if you forget your password.
+              Keep your login credentials private. Use password
+              recovery if you forget your password.
             </p>
           </div>
 
