@@ -94,7 +94,11 @@ async function generateWithRetry(prompt, config = {}) {
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-            console.log(`Calling Gemini model: ${MODEL_NAME}`);
+            console.log(
+                `[AI] Calling Gemini model: ${MODEL_NAME} (attempt ${attempt + 1})`
+            );
+
+            const startTime = Date.now();
 
             const response = await ai.models.generateContent({
                 model: MODEL_NAME,
@@ -102,13 +106,19 @@ async function generateWithRetry(prompt, config = {}) {
                 config
             });
 
+            const elapsedSeconds =
+                ((Date.now() - startTime) / 1000).toFixed(2);
+
+            console.log(
+                `[TIMING] Gemini API: ${elapsedSeconds} seconds`
+            );
+
             if (!response.text) {
                 throw new Error("Gemini returned an empty response.");
             }
 
             return response;
         } catch (error) {
-            // Log the error without exposing the API key.
             console.error("Gemini API error:", {
                 status: error.status,
                 message: error.message
@@ -127,8 +137,14 @@ async function generateWithRetry(prompt, config = {}) {
                 throw error;
             }
 
+            const retryDelay = 1000 * Math.pow(2, attempt);
+
+            console.log(
+                `[AI] Temporary error. Retrying in ${retryDelay / 1000} seconds...`
+            );
+
             await new Promise(resolve =>
-                setTimeout(resolve, 1000 * Math.pow(2, attempt))
+                setTimeout(resolve, retryDelay)
             );
         }
     }
