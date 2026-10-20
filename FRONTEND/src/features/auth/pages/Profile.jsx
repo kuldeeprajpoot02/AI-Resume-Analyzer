@@ -16,8 +16,10 @@ const Profile = () => {
     username: "",
     email: "",
   });
+
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -26,23 +28,18 @@ const Profile = () => {
 
     const loadProfile = async () => {
       try {
-        // Correct backend endpoint: /api/auth/get-me
         const response = await axios.get(
           `${API_URL}/api/auth/get-me`,
           { withCredentials: true }
         );
 
-        const data = response.data?.user || response.data?.data || response.data;
-        const profile = data?.user || data;
+        const profile = response.data?.user;
 
         if (!active) return;
 
         setUser(profile);
         setForm({
-          username:
-            profile?.username ||
-            profile?.name ||
-            "",
+          username: profile?.username || "",
           email: profile?.email || "",
         });
       } catch (err) {
@@ -70,9 +67,7 @@ const Profile = () => {
   }, [navigate]);
 
   const initials = (
-    form.username ||
-    form.email ||
-    "U"
+    form.username || form.email || "U"
   )
     .trim()
     .charAt(0)
@@ -89,7 +84,7 @@ const Profile = () => {
 
   const handleCancel = () => {
     setForm({
-      username: user?.username || user?.name || "",
+      username: user?.username || "",
       email: user?.email || "",
     });
 
@@ -98,12 +93,65 @@ const Profile = () => {
     setSuccess("");
   };
 
-  const handleSave = (event) => {
+  const handleSave = async (event) => {
     event.preventDefault();
+
     setError("");
-    setSuccess(
-      "Profile editing is not connected to a backend update endpoint yet. Your changes have not been saved."
-    );
+    setSuccess("");
+
+    const username = form.username.trim();
+
+    if (username.length < 3 || username.length > 30) {
+      setError("Username must be between 3 and 30 characters.");
+      return;
+    }
+
+    if (username === user?.username) {
+      setEditing(false);
+      setSuccess("No changes to save.");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      // Backend route uses PUT /api/auth/update-profile
+      const response = await axios.put(
+        `${API_URL}/api/auth/update-profile`,
+        { username },
+        { withCredentials: true }
+      );
+
+      const updatedUser = response.data?.user;
+
+      if (!updatedUser) {
+        throw new Error("Invalid server response.");
+      }
+
+      setUser(updatedUser);
+      setForm({
+        username: updatedUser.username || "",
+        email: updatedUser.email || "",
+      });
+
+      setEditing(false);
+      setSuccess(
+        response.data.message || "Profile updated successfully."
+      );
+    } catch (err) {
+      if (err.response?.status === 401) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Unable to update your profile. Please try again."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -131,18 +179,14 @@ const Profile = () => {
 
         <section className="profile-hero">
           <div>
-            <p className="profile-eyebrow">
-              ACCOUNT SETTINGS
-            </p>
+            <p className="profile-eyebrow">ACCOUNT SETTINGS</p>
             <h1>My Profile</h1>
             <p className="profile-subtitle">
               Manage your account information in one place.
             </p>
           </div>
 
-          <div className="profile-avatar">
-            {initials}
-          </div>
+          <div className="profile-avatar">{initials}</div>
         </section>
 
         {error && (
@@ -187,9 +231,11 @@ const Profile = () => {
                   type="text"
                   name="username"
                   value={form.username}
-                  disabled={!editing}
+                  disabled={!editing || saving}
                   onChange={handleChange}
                   placeholder="Your name"
+                  minLength={3}
+                  maxLength={30}
                   required
                 />
               </label>
@@ -200,10 +246,8 @@ const Profile = () => {
                   type="email"
                   name="email"
                   value={form.email}
-                  disabled={!editing}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  required
+                  disabled
+                  readOnly
                 />
               </label>
             </div>
@@ -214,6 +258,7 @@ const Profile = () => {
                   type="button"
                   className="profile-button profile-button-secondary"
                   onClick={handleCancel}
+                  disabled={saving}
                 >
                   Cancel
                 </button>
@@ -221,8 +266,9 @@ const Profile = () => {
                 <button
                   type="submit"
                   className="profile-button profile-button-primary"
+                  disabled={saving}
                 >
-                  Save Changes
+                  {saving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             )}
@@ -235,8 +281,8 @@ const Profile = () => {
           <div>
             <h2>Account Security</h2>
             <p>
-              Keep your login credentials private. Use password
-              recovery if you forget your password.
+              Keep your login credentials private.
+              Your password is never shown on this page.
             </p>
           </div>
 

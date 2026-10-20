@@ -10,14 +10,45 @@ import Home from "./features/interview/pages/Home";
 import Interview from "./features/interview/pages/Interview";
 import History from "./features/interview/pages/History";
 
+import AppLayout from "./components/AppLayout";
+
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: (
-      <Protected>
-        <Home />
-      </Protected>
-    ),
+    element: <AppLayout />,
+    children: [
+      {
+        path: "/",
+        element: (
+          <Protected>
+            <Home />
+          </Protected>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <Protected>
+            <Profile />
+          </Protected>
+        ),
+      },
+      {
+        path: "/history",
+        element: (
+          <Protected>
+            <History />
+          </Protected>
+        ),
+      },
+      {
+        path: "/interview/:interviewId",
+        element: (
+          <Protected>
+            <Interview />
+          </Protected>
+        ),
+      },
+    ],
   },
   {
     path: "/login",
@@ -26,29 +57,5 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
-  },
-  {
-    path: "/profile",
-    element: (
-      <Protected>
-        <Profile />
-      </Protected>
-    ),
-  },
-  {
-    path: "/history",
-    element: (
-      <Protected>
-        <History />
-      </Protected>
-    ),
-  },
-  {
-    path: "/interview/:interviewId",
-    element: (
-      <Protected>
-        <Interview />
-      </Protected>
-    ),
   },
 ]);
