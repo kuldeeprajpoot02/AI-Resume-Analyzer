@@ -10,7 +10,7 @@ import Home from "./features/interview/pages/Home";
 import Interview from "./features/interview/pages/Interview";
 import History from "./features/interview/pages/History";
 
-import AppLayout from "./components/AppLayout";
+import AppLayout from "./features/auth/components/AppLayout";
 
 export const router = createBrowserRouter([
   {
