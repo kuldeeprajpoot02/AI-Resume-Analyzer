@@ -9,12 +9,13 @@ const {
 const interviewReportModel =
     require("../models/interviewReport.model");
 
-
 /**
  * Generate interview report
  * POST /api/interview
  */
 async function generateInterviewReportController(req, res) {
+    const requestStart = Date.now();
+
     try {
         console.log("INTERVIEW API HIT");
 
@@ -28,8 +29,16 @@ async function generateInterviewReportController(req, res) {
         console.log("PDF RECEIVED:", req.file.originalname);
         console.log("PDF SIZE:", req.file.size);
 
+        // Measure PDF parsing time
+        const pdfStart = Date.now();
         const pdfData = await pdfParse(req.file.buffer);
         const resumeContent = pdfData.text;
+
+        console.log(
+            "[TIMING] PDF parsing:",
+            Date.now() - pdfStart,
+            "ms"
+        );
 
         if (!resumeContent || !resumeContent.trim()) {
             return res.status(400).json({
@@ -48,11 +57,20 @@ async function generateInterviewReportController(req, res) {
             });
         }
 
+        // Measure Gemini generation time
+        const aiStart = Date.now();
+
         const interviewReportByAi = await generateInterviewReport({
             resume: resumeContent,
             selfDescription: selfDescription || "",
             jobDescription
         });
+
+        console.log(
+            "[TIMING] Gemini generation:",
+            Date.now() - aiStart,
+            "ms"
+        );
 
         if (
             !interviewReportByAi ||
@@ -61,6 +79,9 @@ async function generateInterviewReportController(req, res) {
             throw new Error("AI returned an invalid interview report.");
         }
 
+        // Measure MongoDB save time
+        const dbStart = Date.now();
+
         const interviewReport = await interviewReportModel.create({
             user: req.user.id,
             resume: resumeContent,
@@ -68,6 +89,18 @@ async function generateInterviewReportController(req, res) {
             jobDescription,
             ...interviewReportByAi
         });
+
+        console.log(
+            "[TIMING] MongoDB save:",
+            Date.now() - dbStart,
+            "ms"
+        );
+
+        console.log(
+            "[TIMING] Total request:",
+            Date.now() - requestStart,
+            "ms"
+        );
 
         return res.status(201).json({
             success: true,
@@ -103,7 +136,6 @@ async function generateInterviewReportController(req, res) {
         });
     }
 }
-
 
 /**
  * Get interview report by ID
@@ -142,7 +174,6 @@ async function generateInterviewReportByIdController(req, res) {
     }
 }
 
-
 /**
  * Get all reports of logged-in user
  * GET /api/interview
@@ -170,7 +201,6 @@ async function getAllInterviewReportsController(req, res) {
         });
     }
 }
-
 
 /**
  * Delete interview report
@@ -215,7 +245,6 @@ async function deleteInterviewReportController(req, res) {
     }
 }
 
-
 /**
  * Generate resume PDF
  */
@@ -258,7 +287,6 @@ async function generateResumePdfController(req, res) {
         });
     }
 }
-
 
 module.exports = {
     generateInterviewReportController,
